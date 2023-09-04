@@ -1,29 +1,29 @@
-const fs = require('fs');
-const path = require('path');
+// ************ Require's ************
+const express = require('express');
+const router = express.Router();
 
-const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
-const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+// ************ Controller Require ************
+const productsController = require('../controllers/productsController');
+const upload = require('../middlewares/upload');
 
-const toThousand = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+/*** GET ALL PRODUCTS ***/ 
+router.get('/', productsController.index); 
 
-const controller = {
-	index: (req, res) => {
-		// Do the magic	
-		return res.render('index', {
-			productsVisited : products.filter(product => product.category === "visited"),
-			productsInSale : products.filter(product => product.category === "in-sale"),
-			toThousand
-		})
-	},
-	search: (req, res) => {
-		// Do the magic
-		const results = products.filter(product => product.name.toLowerCase().includes(req.query.keywords.toLowerCase()))
-		return res.render('results', {
-			results,
-			toThousand,
-			keywords : req.query.keywords
-		})
-	},
-};
+/*** CREATE ONE PRODUCT ***/ 
+router.get('/create', productsController.create); 
+router.post('/create',upload.single('image') ,productsController.store); 
 
-module.exports = controller;
+
+/*** GET ONE PRODUCT ***/ 
+router.get('/detail/:id', productsController.detail); 
+
+/*** EDIT ONE PRODUCT ***/ 
+router.get('/edit/:id', productsController.edit); 
+router.put('/update/:id',upload.single('image') , productsController.update); 
+
+
+/*** DELETE ONE PRODUCT***/ 
+router.delete('/delete/:id', productsController.destroy); 
+
+
+module.exports = router;

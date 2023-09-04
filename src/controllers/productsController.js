@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-//const { unlinkSync,existsSync } = require('fs');
+const { unlinkSync,existsSync } = require('fs');
 
 const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
 const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
@@ -61,7 +61,6 @@ const controller = {
 		const product = products.find(product => product.id === +req.params.id);
 		return res.render('product-edit-form', {
 			...product
-			
 		});
 	},
 	// Update - Method to update
@@ -70,19 +69,17 @@ const controller = {
 		const { name, price, discount, description, category } = req.body;
 		const productsModify = products.map(product => {
 			if (product.id === +req.params.id) {
-				//req.file && (existsSync(`./public/images/products/${product.image}`) && unlinkSync(`./public/images/products/${product.image}`))
-				product.name = name.trim(),
-				product.price = +price,
-				product.discount = +discount,
-				product.category = category,
+				req.file && (existsSync(`./public/images/products/${product.image}`) && unlinkSync(`./public/images/products/${product.image}`))
+				product.name = name.trim();
+				product.price = +price;
+				product.discount = +discount;
+				product.category = category;
 				product.description = description.trim();	
-						
+				product.image = req.file ? req.file.filename : product.image		
 			}
 			return product
 		})
-		fs.writeFileSync(productsFilePath,
-			JSON.stringify(products,null,3),
-			'utf-8');
+		fs.writeFileSync(productsFilePath,JSON.stringify(products,null,3),'utf-8');
 		return res.redirect('/products');
 	},
 
@@ -94,4 +91,5 @@ const controller = {
 		return res.redirect('/products');
 	}
 };
+
 module.exports = controller;
